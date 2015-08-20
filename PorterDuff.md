@@ -187,7 +187,7 @@ Background &= Rainbow \textbf{ plus } Darkbow \textbf{ over } Mountains \textbf{
 Pt.Reyes &= Foreground \textbf{ over } Hillside \textbf{ over } Background
 \end{align*}$$
 
-Figure 1 shows three intermediate composites and the final picture. 
+Figure 1 shows three intermediate composites and the final picture.
 
 
 <TODO: images>
@@ -205,7 +205,7 @@ To solve the problem of correlated mattes, we must extend our methodology to han
 |-------|-------|--------|-------|-------------|
 |       |       |        |       |             |
 |       |       |        |   *   | Stars       |
-|       |       |   *    |       | Planet      | 
+|       |       |   *    |       | Planet      |
 |       |       |   *    |   *   | Planet      |
 |       |   *   |        |       | BFire       |
 |       |   *   |        |   *   | BFire       |
@@ -222,7 +222,7 @@ To solve the problem of correlated mattes, we must extend our methodology to han
 
 6. Conclusion
 -------------
-We have pointed out the need for matte channels in synthetic pictures, suggesting that frame buffer hardware should offer this facility. We have seen the convenience of the RGBA scheme for integrating the matte channel. A language of operators has been presented for conveying a full range of compositing expressions. We have discussed a methodology for deciding compositing questions at the subpixel level, deriving a simple equation for handling all composites of two pictures. The methodology is extended to multiple pictures, and the language is embellished to handle darkening, attenuation, and opaqueness. 
+We have pointed out the need for matte channels in synthetic pictures, suggesting that frame buffer hardware should offer this facility. We have seen the convenience of the RGBA scheme for integrating the matte channel. A language of operators has been presented for conveying a full range of compositing expressions. We have discussed a methodology for deciding compositing questions at the subpixel level, deriving a simple equation for handling all composites of two pictures. The methodology is extended to multiple pictures, and the language is embellished to handle darkening, attenuation, and opaqueness.
 
 There are several problems to be resolved in related areas, which are open for future research. We are interested in methods for breaking arbitrary three dimensional scenes into elements separated in depth. Such elements are equivalent to clusters, which have been a subject of discussion since the earliest attempts at hidden surface elimination. We are interested in applying the compositing notions to Z-buffer algorithms, where depth information is retained at each pixel.
 
