@@ -70,7 +70,7 @@ If we survey the variety of elements which contribute to a complex animation, we
 There are some objections to computing with these RGBA pictures. Storage of the color components pre-multiplied by the alpha would seem to unduly quantize the color resolution, especially as alpha approaches 0. However, because any compositing of the picture will require that multiplication anyway, storage of the product forces only a very minor loss of precision in this regard. Color extraction, to compute in a different color space for example, becomes more difficult. We must recover (r∕α, g∕α, b/α), and once again, as alpha approaches 0, the precision falls off sharply. For our applications, this has yet to affect us.
 
 4. The Algebra of Compositing
-
+-----------------------------
 Given this standard of RGBA pictures, let us examine how compositing works. We shall do this by enumerating the complete set of binary compositing operations. For each of these, we shall present a formula for computing the contribution of each of two input pictures to the output composite at each pixel. We shall pay particular attention to the output pixels, to see that they remain pre-multiplied by their alpha.
 
 ### 4.1. Assumptions
