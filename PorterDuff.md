@@ -1,10 +1,10 @@
-﻿Computer Graphics
+Computer Graphics
 Volume 18, Number 3
 July 1984
 
 Compositing Digital Images
 ==========================
-_Thomas Porter_, _Tom Duff_ ✝
+_Thomas Porter_, _Tom Duff_ [^cross]
 
 Computer Graphics Project, Lucasfilm Ltd.
 
@@ -26,13 +26,6 @@ _Most computer graphics pictures have been computed all at once, so that the ren
 * matte algebra
 * visible surface algorithms
 * graphics systems
-
-(SIDEBAR)
----------
-
-✝ Author's current address: AT&T Bell Laboratories, Murray Hill, NJ 07074, Room 2C46S
-
-Permission to copy without fee all or part of this material is granted provided that the copies are not made or distributed for direct commercial advantage, the ACM copyright notice and the title of the publication and its date appear, and notice is given that copying is by permission of the Association for Computing Machinery. To copy otherwise, or to republish, requires a fee and/or specific permission.
 
 1. Introduction
 ---------------
@@ -77,16 +70,16 @@ Given this standard of RGBA pictures, let us examine how compositing works. We s
 
 When blending pictures together, we do not have information about overlap of coverage information within a pixel; all we have is an alpha value. When we consider the mixing of two pictures at a pixel, we must make some assumption about the interplay of the two alpha values. In order to examine that interplay, let us first consider the overlap of two semi-transparent elements like haze, then consider the overlap of two opaque, hard-edged elements.
 
-If αA and αB represent the opaqueness of semi-transparent objects which fully cover the pixel, the computation is well known. Each object lets (1−α) of the background through, so that the background shows through only (1−αA)(1−αB) of the pixel, αA(1−aB) of the background is blocked by object A and passed by object B; (1−αA)αB of the background is passed by A and blocked by B. This leaves αAαB of the pixel which we can consider to be blocked by both.
+If $\alpha_A$ and $\alpha_B$ represent the opaqueness of semi-transparent objects which fully cover the pixel, the computation is well known. Each object lets $(1 - \alpha)$ of the background through, so that the background shows through only $(1 - \alpha_A)(1 - \alpha_B)$ of the pixel, $\alpha_A(1 - \alpha_B)$ of the background is blocked by object A and passed by object B; $(1 - \alpha_A)\alpha_B$ of the background is passed by A and blocked by B. This leaves $\alpha_A \alpha_B$ of the pixel which we can consider to be blocked by both.
 
-If αA and αB represent subpixel areas covered by opaque geometric objects, the overlap of objects within the pixel is quite arbitrary. We know that object A divides the pixel into two subpixel areas of ratio αA:1−αA. We know that object B divides the pixel into two subpixel areas of ratio αB:1−αB. Lacking further information, we make the following assumption: _there is nothing special about the shape of the pixel; we expect that object B will divide each of the subpixel areas inside and outside of object A into the same ratio αB:1−αB_. The result of the assumption is the same arithmetic as with semi-transparent objects and is summarized in the following table:
+If $\alpha_A$ and $\alpha_B$ represent subpixel areas covered by opaque geometric objects, the overlap of objects within the pixel is quite arbitrary. We know that object A divides the pixel into two subpixel areas of ratio $\alpha_A : 1 − \alpha_A$. We know that object B divides the pixel into two subpixel areas of ratio $\alpha_B : 1 − \alpha_B$. Lacking further information, we make the following assumption: _there is nothing special about the shape of the pixel; we expect that object B will divide each of the subpixel areas inside and outside of object A into the same ratio $\alpha_B : 1 − \alpha_B$_. The result of the assumption is the same arithmetic as with semi-transparent objects and is summarized in the following table:
 
-| description | area         |
-|-------------|--------------|
-| A̅ ∩ B̅       | (1−αA)(1−αB) |
-| A ∩ B̅       | αA(1−αB)     |
-| A̅ ∩ B       | (1−αA)αB     |
-| A ∩ B       | αAαB         |
+| description | area                           |
+|-------------|--------------------------------|
+| A̅ ∩ B̅       | $(1 - \alpha_A)(1 - \alpha_B)$ |
+| A ∩ B̅       | $\alpha_A(1 - \alpha_B)$       |
+| A̅ ∩ B       | $(1 - \alpha_A)\alpha_B$       |
+| A ∩ B       | $\alpha_A \alpha_B$            |
 
 The assumption is quite good for most mattes, though it can be improved if we know that the coverage seldom overlaps (adjacent segments of a continuous line) or always overlaps (repeated application of a picture). For ease in presentation throughout this paper, let us make this assumption and consider the alpha values as representing subpixel coverage of opaque objects.
 
@@ -103,33 +96,35 @@ Consider two pictures A and B. They divide each pixel into the 4 subpixel areas
 
 listed in this table along with the choices in each area for contributing to the composite. In the last area, for example, because both input pictures exist there, either could survive to the composite. Alternatively, the composite could be clear in that area.
 
-A particular binary compositing operation can be identified as a quadruple indicating the input picture which contributes to the composite in each of the four subpixel areas 0, A, B, AB of the table above. With three choices where the pictures intersect, two where only one picture exists and one outside the two pictures, there are 3×2×2×1=12 distinct compositing operations listed in the table below. Note that pictures A and B are diagrammed as covering the pixel with triangular wedges whose overlap conforms to the assumption above.
+A particular binary compositing operation can be identified as a quadruple indicating the input picture which contributes to the composite in each of the four subpixel areas 0, A, B, AB of the table above. With three choices where the pictures intersect, two where only one picture exists and one outside the two pictures, there are $3 \times 2 \times 2 \times 1 = 12$ distinct compositing operations listed in the table below. Note that pictures A and B are diagrammed as covering the pixel with triangular wedges whose overlap conforms to the assumption above.
 
-<TODO: big diag>
+(TODO: Bring across the the large table.)
 
 Useful operators include A **over** B, A **in** B, and A **held out by** B. A **over** B is the placement of foreground A in front of background B. A in B refers only to that part of A inside picture B. A **held out by** B, normally shortened to A out B, refers only to that part of A outside picture B. For completeness, we include the less useful operators A **atop** B and A **xor** B. A **atop** B is the union of A **in** B and B **out** A. Thus, _paper_ **atop** _table_ includes _paper_ where it is on top of _table_, and table otherwise; area beyond the edge of the table is out of the picture. A **xor** B is the union of A **out** B and B **out** A.
 
 ### 4.3. Compositing Arithmetic
 
-For each of the compositing operations, we would like to compute the contribution of each input picture at each pixel. This is quite easily solved by recognizing that each input picture survives in the composite pixel only within its own matte. For each input picture, we are looking for that fraction of its own matte which prevails in the output. By definition then, the alpha value of the composite, the total area of the pixel covered, can be computed by adding aA times its fraction FA to aB times its fraction FB.
+For each of the compositing operations, we would like to compute the contribution of each input picture at each pixel. This is quite easily solved by recognizing that each input picture survives in the composite pixel only within its own matte. For each input picture, we are looking for that fraction of its own matte which prevails in the output. By definition then, the alpha value of the composite, the total area of the pixel covered, can be computed by adding $\alpha_A$ times its fraction $F_A$ to $\alpha_B$ times its fraction $F_B$.
 
-The color of the composite can be computed on a component basis by adding the color of the picture A times its fraction to the color of picture B times its fraction. To see this, let $$c_A$$, $$c_B$$, and $$c_O$$ be some color component of pictures A, B and the composite, and let $$C_A$$, $$C_B$$, and $$C_O$$ be the true color component before pre-multiplication by alpha. Then we have
+The color of the composite can be computed on a component basis by adding the color of the picture A times its fraction to the color of picture B times its fraction. To see this, let $c_A$, $c_B$, and $c_O$ be some color component of pictures A, B and the composite, and let $C_A$, $C_B$, and $C_O$ be the true color component before pre-multiplication by alpha. Then we have
 
 $$c_O=\alpha_OC_O$$
 
-Now $$C_O$$ can be computed by averaging contributions made by $$C_A$$ and $$C_B$$, so
+Now $C_O$ can be computed by averaging contributions made by $C_A$ and $C_B$, so
 
-$$c_O=\alpha_O\frac{\alpha_AF_AC_A+\alpha_BF_BC_B}{\alpha_AF_A+\alpha_BF_B}$$
+$$c_O = \alpha_O \frac{\alpha_A F_A C_A + \alpha_B F_B C_B}{\alpha_A F_A + \alpha_B F_B}$$
 
-but the denominator is just $$\alpha_O$$, so
+but the denominator is just $\alpha_O$, so
 
-$$\begin{align*}c_O&=\alpha_AF_AC_A+\alpha_BF_BC_B \\
-&=\alpha_AF_A\frac{c_A}{\alpha_A}+\alpha_BF_B\frac{c_B}{\alpha_B} \\
-&=c_AF_A+c_BF_B\end{align}$$ (1)
+$$\begin{align*}
+c_O &= \alpha_A F_A C_A + \alpha_B F_B C_B \\
+&= \alpha_A F_A \frac{c_A}{\alpha_A} + \alpha_B F_B \frac{c_B}{\alpha_B} \\
+&= c_A F_A + c_B F_B
+\end{align*}$$(1)
 
-Because each of the input colors is pre-multiplied by its alpha, and we are adding contributions from non-overlapping areas, the sum will be effectively pre-multiplied by the alpha value of the composite just computed. The pleasant result that the color channels are handled with the same computation as alpha can be traced back to our decision to store pre-multiplied RGBA quadruples. Thus the problem is reduced to finding a table of fractions $$F_A$$ and $$F_B$$ which indicate the extent of contribution of A and B, plugging these values into equation 1 for both the color and the alpha components.
+Because each of the input colors is pre-multiplied by its alpha, and we are adding contributions from non-overlapping areas, the sum will be effectively pre-multiplied by the alpha value of the composite just computed. The pleasant result that the color channels are handled with the same computation as alpha can be traced back to our decision to store pre-multiplied RGBA quadruples. Thus the problem is reduced to finding a table of fractions $F_A$ and $F_B$ which indicate the extent of contribution of A and B, plugging these values into equation 1 for both the color and the alpha components.
 
-By our assumptions above, the fractions are quickly determined by examining the pixel diagram included in the table of operations. Those fractions are listed in the $$F_A$$ and $$F_B$$ columns of the table. For example, in the A **over** B case, picture A survives everywhere while picture B survives only outside picture A, so the corresponding fractions are $$1$$ and $$(1 - \alpha_A)$$. Substituting into equation 1, we find
+By our assumptions above, the fractions are quickly determined by examining the pixel diagram included in the table of operations. Those fractions are listed in the $F_A$ and $F_B$ columns of the table. For example, in the A **over** B case, picture A survives everywhere while picture B survives only outside picture A, so the corresponding fractions are $1$ and $(1 - \alpha_A)$. Substituting into equation 1, we find
 
 $$c_O = c_A \times 1 + c_B \times (1 - \alpha_A)$$
 
@@ -141,23 +136,23 @@ except that our foreground is pre-multiplied by alpha.
 
 ### 4.4. Unary operators
 
-To assist us in dissolving and in balancing color brightness of elements contributing to a composite, it is useful to introduce a darken factor $$\phi$$ and a dissolve factor $$\delta$$:
+To assist us in dissolving and in balancing color brightness of elements contributing to a composite, it is useful to introduce a darken factor $\phi$ and a dissolve factor $\delta$:
 
 $$darken(A, \phi) \equiv (\phi r_A, \phi g_A, \phi b_A, \alpha _A)$$
 
 $$dissolve(A, \delta) \equiv (\delta r_A, \delta g_A, \delta b_A, \delta \alpha _A)$$
 
-Normally, $$0 \le \phi, \delta \le 1$$ although none of the theory requires it.
+Normally, $0 \le \phi, \delta \le 1$ although none of the theory requires it.
 
-As $$\phi$$ varies from 1 to 0, the element will change from normal to complete blackness. If $$\phi > 1$$ the element will be brightened. As $$delta$$ goes from 1 to 0 the element will gradually fade from view.
+As $\phi$ varies from 1 to 0, the element will change from normal to complete blackness. If $\phi > 1$ the element will be brightened. As $delta$ goes from 1 to 0 the element will gradually fade from view.
 
-Luminescent objects, which add color information without obscuring the background, can be handled with the introduction of a opaqueness factor $$\omega$$, $$0 \le \omega \le 1$$:
+Luminescent objects, which add color information without obscuring the background, can be handled with the introduction of a opaqueness factor $\omega$, $0 \le \omega \le 1$:
 
 $$opaque(A, \omega) \equiv (r_A, g_A, b_A, \omega \alpha_A)$$
 
-As $$\omega$$ varies from 1 to 0, the element will change from normal coverage over the background to no obscuration. This scaling of the alpha channel alone will cause pixel quadruples where α is less than a color component, indicating a representation of a color outside of the normal range. This possibility forces us to clip the output composite to the [0,1] range.
+As $\omega$ varies from 1 to 0, the element will change from normal coverage over the background to no obscuration. This scaling of the alpha channel alone will cause pixel quadruples where α is less than a color component, indicating a representation of a color outside of the normal range. This possibility forces us to clip the output composite to the [0,1] range.
 
-An $$\omega$$ of 0 will produce quadruples (r,g,b,0) which do have meaning. The color channels, pre-multiplied by the original alpha, can be plugged into equation 1 as always. The alpha channel of 0 indicates that this pixel will obscure nothing. In terms of our methodology for examining subpixel areas, we should understand that using the opaque operator corresponds to shrinking the matte coverage with regard to the color coverage.
+An $\omega$ of 0 will produce quadruples (r,g,b,0) which do have meaning. The color channels, pre-multiplied by the original alpha, can be plugged into equation 1 as always. The alpha channel of 0 indicates that this pixel will obscure nothing. In terms of our methodology for examining subpixel areas, we should understand that using the opaque operator corresponds to shrinking the matte coverage with regard to the color coverage.
 
 ### 4.5. The PLUS operator
 
@@ -177,7 +172,7 @@ Using equation 1 twice, we find that the composite in this case is computed at e
 
 $$c_O = c_A \alpha_C + c_B (1 - \alpha _A \alpha _C)$$
 
-As an example of a complex compositing expression, let us consider a subwindow of Rob Cook's picture _Road to Point Reyes_ [1]. This still frame was assembled from many elements according to the following rules:
+As an example of a complex compositing expression, let us consider a subwindow of Rob Cook's picture _Road to Point Reyes_ [1] . This still frame was assembled from many elements according to the following rules:
 
 $$\begin{align*}
 Foreground &= FrgdGrass \textbf{ over } Rock \textbf{ over } Fence \textbf{ over } Shadow \textbf{ over } BkgdGrass; \\
@@ -197,9 +192,9 @@ A further example demonstrates the problem of correlated mattes. In Figure 2, we
 
 $$(FFire \textbf{ plus } (BFire \textbf{ out } Planet)) \textbf{ over } darken(Planet,.8) \textbf{ over } Stars.$$
 
-We must remember that our basic assumption about the division of subpixel areas by geometric objects breaks down in the face of input pictures with correlated mattes. When one picture appears twice in a compositing expression, we must take care with our computations of $$F_A$$ and $$F_B$$. Those listed in the table are correct only for uncorrelated pictures.
+We must remember that our basic assumption about the division of subpixel areas by geometric objects breaks down in the face of input pictures with correlated mattes. When one picture appears twice in a compositing expression, we must take care with our computations of $F_A$ and $F_B$. Those listed in the table are correct only for uncorrelated pictures.
 
-To solve the problem of correlated mattes, we must extend our methodology to handle n pictures: we must examine all $$2^n$$ subareas of the pixel, deciding which of the pictures survives in each area, and adding up all contributions. Multiple instances of a single picture or pictures with correlated mattes are resolved by aligning their pixel coverage. Example 2 can be computed by building a table of survivors (shown below) to accumulate the extent to which each input picture survives in the composite.
+To solve the problem of correlated mattes, we must extend our methodology to handle n pictures: we must examine all $2^n$ subareas of the pixel, deciding which of the pictures survives in each area, and adding up all contributions. Multiple instances of a single picture or pictures with correlated mattes are resolved by aligning their pixel coverage. Example 2 can be computed by building a table of survivors (shown below) to accumulate the extent to which each input picture survives in the composite.
 
 | FFire | BFire | Planet | Stars | Survivor    |
 |-------|-------|--------|-------|-------------|
@@ -228,15 +223,28 @@ There are several problems to be resolved in related areas, which are open for f
 
 7. References
 -------------
-1. Cook, R. Road to Point Reyes. _Computer Graphics_ Vol 17, No. 3 (1983), Title Page Picture.
-2. Crow, F. C. A More Flexible Image Generation Environment. _Computer Graphics_ Vol. 16, No. 3 (1982), pp. 9-18.
-3. Newell, M. G., Newell, R. G., and Saneha, T. L.. A Solution to the Hidden Surface Problem, pp. 443-448. _Proceedings of the 1972 ACM National Conference_.
-4. Wallace, Bruce. Merging and Transformation of Raster Images for Cartoon Animation. _Computer Graphics_ Vol. 15, No. 3 (1981), pp. 253.262.
-5. Warnoek, John, and Wyatt, Douglas. A Device Independent Graphics Imaging Model for Use with Raster Devices. _Computer Graphics_ Vol. 16, No. 3 (1982), pp. 313-319.
-6. Whitted, Turner, and Weimer, David. A Software Test-Bed for the Development of 3-D Raster Graphies Systems. _Computer Graphics_ Vol. 15, No. 3 (1981), pp. 271-277.
+[1]: Cook, R. Road to Point Reyes. _Computer Graphics_ Vol 17, No. 3 (1983), Title Page Picture.
+
+[2]. Crow, F. C. A More Flexible Image Generation Environment. _Computer Graphics_ Vol. 16, No. 3 (1982), pp. 9-18.
+
+[3]. Newell, M. G., Newell, R. G., and Saneha, T. L.. A Solution to the Hidden Surface Problem, pp. 443-448. _Proceedings of the 1972 ACM National Conference_.
+
+[4]. Wallace, Bruce. Merging and Transformation of Raster Images for Cartoon Animation. _Computer Graphics_ Vol. 15, No. 3 (1981), pp. 253.262.
+
+[5]. Warnoek, John, and Wyatt, Douglas. A Device Independent Graphics Imaging Model for Use with Raster Devices. _Computer Graphics_ Vol. 16, No. 3 (1982), pp. 313-319.
+
+[6]. Whitted, Turner, and Weimer, David. A Software Test-Bed for the Development of 3-D Raster Graphies Systems. _Computer Graphics_ Vol. 15, No. 3 (1981), pp. 271-277.
 
 8. Acknowledgments
 ------------------
 The use of mattes to control the compositing of pictures is not new. The graphics group at the New York Institute of Technology has been using this for years. NYIT color maps were designed to encode both color and matte information; that idea was extended in the Ampex AVA system for storing mattes with pictures. Credit should be given to Ed Catmull, Alvy Ray Smith, and Ikonas Graphics Systems for the existence of an alpha channel as an integral part of a frame buffer, which has paved the way for the developments presented in this paper.
 
 The graphics group at Lucasfilm should be credited with providing a fine test bed for working out these ideas. Furthermore, certain ideas incorporated as part of this work have their origins as idle comments within this group. Thanks are also given to Rodney Stock for comments on an early draft which forced the authors to clarify the major assumptions.
+
+Notice
+------
+
+[^cross]: Author's current address: AT&T Bell Laboratories, Murray Hill, NJ 07074, Room 2C46S
+
+Permission to copy without fee all or part of this material is granted provided that the copies are not made or distributed for direct commercial advantage, the ACM copyright notice and the title of the publication and its date appear, and notice is given that copying is by permission of the Association for Computing Machinery. To copy otherwise, or to republish, requires a fee and/or specific permission.
+
