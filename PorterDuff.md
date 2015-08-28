@@ -98,7 +98,20 @@ listed in this table along with the choices in each area for contributing to the
 
 A particular binary compositing operation can be identified as a quadruple indicating the input picture which contributes to the composite in each of the four subpixel areas 0, A, B, AB of the table above. With three choices where the pictures intersect, two where only one picture exists and one outside the two pictures, there are $3 \times 2 \times 2 \times 1 = 12$ distinct compositing operations listed in the table below. Note that pictures A and B are diagrammed as covering the pixel with triangular wedges whose overlap conforms to the assumption above.
 
-(TODO: Bring across the the large table.)
+| Operation      | Quadruple | Diagram                                       | $F_A$          | $F_B$          |
+|----------------|-----------|-----------------------------------------------|----------------|----------------|
+| _clear_        | (0,0,0,0) | ![Clear](diagrams/clear.svg "Clear")          | 0              | 0              |
+| _A_            | (0,A,0,A) | ![A](diagrams/a.svg "A")                      | 1              | 0              |
+| _B_            | (0,0,B,B) | ![A](diagrams/b.svg "B")                      | 0              | 1              |
+| _A **over** B_ | (0,A,B,A) | ![A over B](diagrams/a-over-b.svg "A over B") | 1              | $1 - \alpha_A$ |
+| _B **over** A_ | (0,A,B,B) | ![B over A](diagrams/b-over-a.svg "B over A") | $1 - \alpha_B$ | 1              |
+| _A **in** B_   | (0,0,0,A) | ![A in B](diagrams/a-in-b.svg "A in B")       | $\alpha_B$     | 0              |
+| _B **in** A_   | (0,0,0,B) | ![B in A](diagrams/b-in-a.svg "B in A")       | 0              | $\alpha_A$     |
+| _A **out** B_  | (0,A,0,0) | ![A out B](diagrams/a-out-b.svg "A out B")    | $1 - \alpha_B$ | 0              |
+| _B **out** A_  | (0,0,B,0) | ![B out A](diagrams/b-out-a.svg "B out A")    | 0              | $1 - \alpha_A$ |
+| _A **atop** B_ | (0,0,B,A) | ![A atop B](diagrams/a-atop-b.svg "A atop B") | $\alpha_B$     | $1 - \alpha_A$ |
+| _B **atop** A_ | (0,A,0,B) | ![B atop A](diagrams/b-atop-a.svg "B atop A") | $1 - \alpha_B$ | $\alpha_A$     |
+| _A **xor** B_  | (0,A,B,0) | ![A xor B](diagrams/a-xor-b.svg "A xor B")    | $1 - \alpha_B$ | $1 - \alpha_A$ |
 
 Useful operators include A **over** B, A **in** B, and A **held out by** B. A **over** B is the placement of foreground A in front of background B. A in B refers only to that part of A inside picture B. A **held out by** B, normally shortened to A out B, refers only to that part of A outside picture B. For completeness, we include the less useful operators A **atop** B and A **xor** B. A **atop** B is the union of A **in** B and B **out** A. Thus, _paper_ **atop** _table_ includes _paper_ where it is on top of _table_, and table otherwise; area beyond the edge of the table is out of the picture. A **xor** B is the union of A **out** B and B **out** A.
 
