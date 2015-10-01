@@ -10,15 +10,20 @@ NAME=PorterDuff
 # table_captions	support "Table: blah" after table turned into caption (OFF)
 # tex_math_dollars	support $math$ (ON)
 #
-OPTIONS=-s --mathjax --from markdown+auto_identifiers+tex_math_dollars
+HTMLOPTIONS=-s --mathjax --from markdown+auto_identifiers+tex_math_dollars
+
+PDFOPTIONS=-s --latex-engine=xelatex
 
 .PHONY: all
-all: $(NAME).html
+all: $(NAME).html $(NAME).pdf
 
 $(NAME).html: $(NAME).md
 
 %.html: %.md
-	pandoc $(OPTIONS) $< -o $@
+	pandoc $(HTMLOPTIONS) $< -o $@
+
+%.pdf: %.md
+	pandoc $(PDFOPTIONS) $< -o $@
 
 .PHONY: clean
 clean:
