@@ -152,7 +152,6 @@ except that our foreground is pre-multiplied by alpha.
 To assist us in dissolving and in balancing color brightness of elements contributing to a composite, it is useful to introduce a darken factor $\phi$ and a dissolve factor $\delta$:
 
 $$darken(A, \phi) \equiv (\phi r_A, \phi g_A, \phi b_A, \alpha _A)$$
-
 $$dissolve(A, \delta) \equiv (\delta r_A, \delta g_A, \delta b_A, \delta \alpha _A)$$
 
 Normally, $0 \le \phi, \delta \le 1$ although none of the theory requires it.
