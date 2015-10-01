@@ -12,21 +12,33 @@ NAME=PorterDuff
 #
 HTMLOPTIONS=-s --mathjax --from markdown+auto_identifiers+tex_math_dollars
 
+# --variable mainfont=Baskerville
+# --variable fontsize=12pt
 PDFOPTIONS=-s --latex-engine=xelatex
 
+
 .PHONY: all
-all: $(NAME).html $(NAME).pdf
+all: html pdf
+
+
+html: $(NAME).html
 
 $(NAME).html: $(NAME).md
 
 %.html: %.md
 	pandoc $(HTMLOPTIONS) $< -o $@
 
+
+pdf: $(NAME).pdf
+
+$(NAME).pdf: $(NAME).md
+
 %.pdf: %.md
 	pandoc $(PDFOPTIONS) $< -o $@
+
 
 .PHONY: clean
 clean:
 	@echo 'Cleaning...'
-	-rm -rf $(NAME).html
+	-rm -rf $(NAME).html $(NAME).pdf
 
