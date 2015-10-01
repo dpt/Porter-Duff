@@ -51,7 +51,7 @@ The quadruple (r,g,b,Î±) indicates that the pixel is a covered by the color (râˆ
 
 It is important to distinguish between two key pixel representations:
 
-  black = (0,0,0,1);
+  black = (0,0,0,1);  
   clear = (0,0,0,0).
 
 The former pixel is an opaque black; the latter pixel is transparent.
