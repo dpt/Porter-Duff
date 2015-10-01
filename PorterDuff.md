@@ -129,11 +129,11 @@ $$c_O = \alpha_O \frac{\alpha_A F_A C_A + \alpha_B F_B C_B}{\alpha_A F_A + \alph
 
 but the denominator is just $\alpha_O$, so
 
-$$\begin{align*}
+$$\begin{aligned}
 c_O &= \alpha_A F_A C_A + \alpha_B F_B C_B \\
 &= \alpha_A F_A \frac{c_A}{\alpha_A} + \alpha_B F_B \frac{c_B}{\alpha_B} \\
 &= c_A F_A + c_B F_B
-\end{align*}$$(1)
+\end{aligned}$$(1)
 
 Because each of the input colors is pre-multiplied by its alpha, and we are adding contributions from non-overlapping areas, the sum will be effectively pre-multiplied by the alpha value of the composite just computed. The pleasant result that the color channels are handled with the same computation as alpha can be traced back to our decision to store pre-multiplied RGBA quadruples. Thus the problem is reduced to finding a table of fractions $F_A$ and $F_B$ which indicate the extent of contribution of A and B, plugging these values into equation 1 for both the color and the alpha components.
 
@@ -187,13 +187,13 @@ $$c_O = c_A \alpha_C + c_B (1 - \alpha _A \alpha _C)$$
 
 As an example of a complex compositing expression, let us consider a subwindow of Rob Cook's picture _Road to Point Reyes_ [1] . This still frame was assembled from many elements according to the following rules:
 
-$$\begin{align*}
+$$\begin{aligned}
 Foreground &= FrgdGrass \textbf{ over } Rock \textbf{ over } Fence \textbf{ over } Shadow \textbf{ over } BkgdGrass; \\
 GlossyRoad &= Puddle \textbf{ over } (PostReflection \textbf{ atop } (PlantReflection \textbf{ atop } Road)); \\
 Hillside &= Plant \textbf{ over } GlossyRoad \textbf{ over } Hill; \\
 Background &= Rainbow \textbf{ plus } Darkbow \textbf{ over } Mountains \textbf{ over } Sky; \\
 Pt.Reyes &= Foreground \textbf{ over } Hillside \textbf{ over } Background
-\end{align*}$$
+\end{aligned}$$
 
 Figure 1 shows three intermediate composites and the final picture.
 
