@@ -1,4 +1,8 @@
-NAME=PorterDuff
+# Makefile for Porter-Duff paper
+
+# Dependencies:
+# - pandoc
+# - xelatex
 
 # auto_identifiers	generate identifiers if none present in source (ON)
 # citations		generate citations and bibliography (OFF)
@@ -16,29 +20,23 @@ HTMLOPTIONS=-s --mathjax --from markdown+auto_identifiers+tex_math_dollars
 # --variable fontsize=12pt
 PDFOPTIONS=-s --latex-engine=xelatex
 
+#SOURCES := $(wildcard *.md)
+SOURCES := PorterDuff.md
 
-.PHONY: all
-all: html pdf
-
-
-html: $(NAME).html
-
-$(NAME).html: $(NAME).md
+OBJECTS := $(patsubst %.md, %.html, $(SOURCES)) \
+	   $(patsubst %.md, %.pdf, $(SOURCES))
 
 %.html: %.md
 	pandoc $(HTMLOPTIONS) $< -o $@
 
-
-pdf: $(NAME).pdf
-
-$(NAME).pdf: $(NAME).md
-
 %.pdf: %.md
 	pandoc $(PDFOPTIONS) $< -o $@
 
+.PHONY: all
+all: $(OBJECTS)
 
 .PHONY: clean
 clean:
 	@echo 'Cleaning...'
-	-rm -rf $(NAME).html $(NAME).pdf
+	-rm -rf $(OBJECTS)
 
