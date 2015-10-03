@@ -21,7 +21,7 @@ HTMLOPTIONS=-s --mathjax --from markdown+auto_identifiers+tex_math_dollars
 PDFOPTIONS=-s --latex-engine=xelatex
 
 #SOURCES := $(wildcard *.md)
-SOURCES := PorterDuff.md
+SOURCES := Porter-Duff.md
 
 OBJECTS := $(patsubst %.md, %.html, $(SOURCES)) \
 	   $(patsubst %.md, %.pdf, $(SOURCES))
